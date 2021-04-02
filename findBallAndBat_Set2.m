@@ -1,5 +1,7 @@
 % tic toc
-im = imread('TennisSet1/stennis.1.ppm');
+im = imread('TennisSet2/stennis.79.ppm');
+figure;
+imshow(im);
 
 % Converts the coloured RGB image to a grayscale image using proportional
 % scaling with values: 0.2126R + 0.7151G + 0.0721B 
@@ -16,8 +18,8 @@ noiseIm = medfilt2(imGray);
 % (lower and upper threshold)
 bin = edge(noiseIm,'canny', [0.1 0.2]);
 
-figure('Position', [500 100 900 600]);
-imshow(bin, 'InitialMagnification',250);
+% figure('Position', [500 100 900 600]);
+% imshow(bin, 'InitialMagnification',250);
 
 % Label all objects in the binary image
 labelMat = bwlabel(bin);
@@ -27,7 +29,7 @@ newLabelMat = zeros(rows, columns);
 
 for i = 1:rows
     for j = 1:columns
-        if ~(labelMat(i,j) == 6)
+        if ~(labelMat(i,j) == 27)
             newLabelMat(i,j) = 1;
         else
             newLabelMat(i,j) = 0;
@@ -35,61 +37,89 @@ for i = 1:rows
     end
 end
 
-newIm1 = mat2gray(newLabelMat);
-figure('Position', [500 100 900 600]);
-imshow(newIm1, 'InitialMagnification',250);
+% newIm1 = mat2gray(newLabelMat);
+% figure('Position', [500 100 900 600]);
+% imshow(newIm1, 'InitialMagnification',250);
 
+%% To isolate Hand+Bat
+se = strel('disk',10);
+% to get rid off the table (pure straight lines => coefficient = 1)
+c = bwpropfilt(bin,'eccentricity',[0.8, 0.995]); %[0.9, 0.995] for set 2
+% to get rid off small objects (noise)
+d = bwareafilt(c,[50, 10000]);
+cc = imclose(d,se);
 
-%% ----------------------------- TESTING ----------------------------------
-
-% Converts the coloured RGB image to a grayscale image using proportional
-% scaling with values: 0.2989R + 0.5870G + 0.1140B 
-% imGray2 = rgb2gray(im);
-
-% Converts the coloured RGB image to a grayscale image using the intensity
-% averaging approach
-% imGray3 = averaging(im);
-% imGray3 = mat2gray(imGray3);
-% 
-% matrix2 = im2double(imGray2);
-% matrix3 = im2double(imGray3);
-% 
-% noiseIm2 = medfilt2(imGray2);
-% noiseIm3 = medfilt2(imGray3);
-
-% noiseIm = filter2([0.3, 0.6], imGray2);
-% noiseIm2 = filter2([0.9, 1], imGray2);
-% noiseIm3 = filter2([0.6, 0.9], imGray2);
-
-% faverage=ones(4,6)/(3*3);
-% noiseIm = imfilter(imGray,faverage);
-% noiseIm2 = imfilter(imGray2,faverage);
-% noiseIm3 = imfilter(imGray3,faverage);
-
-% noiseIm = wiener2(imGray, [5 5]);
-% noiseIm2 = wiener2(imGray2, [5 5]);
-% noiseIm3 = wiener2(imGray3, [5 5]);
-
-% noiseIm = imgaussfilt(imGray);
-% noiseIm2 = imgaussfilt(imGray2);
-% noiseIm3 = imgaussfilt(imGray3);
-
-% laplacian = fspecial('laplacian');
-% noiseIm = imfilter(imGray,laplacian,'replicate');
-% noiseIm2 = imfilter(imGray2,laplacian,'replicate');
-% noiseIm3 = imfilter(imGray3,laplacian,'replicate');
-
-
+% Using labesl to find the leftmost pixel of the resulting image as it  
+% always belong to the tip of the bat. (where the speed is the highest)
+    bat_pose_found = 0;
+    L2 = bwlabel(cc);
+    % read vertically and look for a non-empty pixel
+    while (bat_pose_found == 0)   
+        for a = 1:columns
+            for b = 1:rows
+                if (L2(b, a) ~= 0 && bat_pose_found == 0)
+                    x_bat = b;
+                    y_bat = a;
+                    bat_pose_found = 1;                
+                end
+            end
+        end
+    end
+    
+    fprintf('x_bat: %d \n', x_bat);
+    fprintf('y_bat: %d \n', y_bat);       
+                
+figure('Position', [350 400 900 600]);
+imshow(cc, 'InitialMagnification',250);
 % figure;
-% imhist(imGray);
+% imshowpair(bin,cc,'montage');
+
+
+%% To isolate the Ball
+% % To fill in each object so that areas can be calculated
+% e = imclose(b,se);
+se2 = strel('disk',10); % try small values like 5
+% To only keep curved objects 
+f = bwpropfilt(bin,'eccentricity',[0, 0.95]); %0.8 originally (up to 48); 
+% from 55 the ball is in the hand and then many problems occur
+
+% To fill in each object so that areas can be calculated
+e = imclose(f,se2);
+% To get rid of very small and very big objects (noise)
+h = bwareafilt(e,[80, 400]); %100 - 400 originally (up to 48)
+% To only keep the ball 
+i = bwareafilt(h,5,'smallest');
+
+% To show original binary image next to same image after last modification
+figure('Position', [850 400 900 600]);
+imshow(i, 'InitialMagnification',250);
 % figure;
-% imhist(imGray2);
-% figure;
-% imhist(imGray3);
+% imshowpair(bin,i,'montage');
 
 
 
-%% Old Tests
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%% Problems with images: 13 in all scenarios
+% --> get rid of it or estimate position of the ball
+
+
+%%
 
 %%% --- Remove largest connected element ---
 % cc1 = bwconncomp(b);
@@ -101,6 +131,12 @@ imshow(newIm1, 'InitialMagnification',250);
 % b(cc1.PixelIdxList{idx}) = 0;
 % imwrite(b, 'newIm.ppm');
 % b2 = imread('newIm.ppm');  %does not work with image 4
+
+
+
+
+
+
 
 % L = bwlabel(b);
 % [rows, columns] = size(L);
@@ -148,6 +184,9 @@ imshow(newIm1, 'InitialMagnification',250);
 % imwrite(b4, 'newIm.ppm');
 % b5 = imread('newIm.ppm');
 
+
+
+
 % fprintf('rows of L: %d  %d \n',rows);
 % fprintf('\ncolumns of L: %d  %d \n',columns);
 
@@ -166,3 +205,6 @@ imshow(newIm1, 'InitialMagnification',250);
 %         end 
 %     end
 % end
+
+
+

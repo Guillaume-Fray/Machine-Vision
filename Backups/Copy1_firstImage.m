@@ -27,7 +27,7 @@ newLabelMat = zeros(rows, columns);
 
 for i = 1:rows
     for j = 1:columns
-        if ~(labelMat(i,j) == 6)
+        if ~(labelMat(i,j) == 27)
             newLabelMat(i,j) = 1;
         else
             newLabelMat(i,j) = 0;
@@ -39,9 +39,9 @@ newIm1 = mat2gray(newLabelMat);
 figure('Position', [500 100 900 600]);
 imshow(newIm1, 'InitialMagnification',250);
 
+%%
 
-%% ----------------------------- TESTING ----------------------------------
-
+% ----------------------------- TESTING -----------------------------------
 % Converts the coloured RGB image to a grayscale image using proportional
 % scaling with values: 0.2989R + 0.5870G + 0.1140B 
 % imGray2 = rgb2gray(im);
@@ -89,7 +89,18 @@ imshow(newIm1, 'InitialMagnification',250);
 
 
 
-%% Old Tests
+%%
+
+
+
+
+
+
+
+
+
+
+
 
 %%% --- Remove largest connected element ---
 % cc1 = bwconncomp(b);
@@ -101,6 +112,12 @@ imshow(newIm1, 'InitialMagnification',250);
 % b(cc1.PixelIdxList{idx}) = 0;
 % imwrite(b, 'newIm.ppm');
 % b2 = imread('newIm.ppm');  %does not work with image 4
+
+
+
+
+
+
 
 % L = bwlabel(b);
 % [rows, columns] = size(L);
@@ -148,6 +165,9 @@ imshow(newIm1, 'InitialMagnification',250);
 % imwrite(b4, 'newIm.ppm');
 % b5 = imread('newIm.ppm');
 
+
+
+
 % fprintf('rows of L: %d  %d \n',rows);
 % fprintf('\ncolumns of L: %d  %d \n',columns);
 
@@ -166,3 +186,6 @@ imshow(newIm1, 'InitialMagnification',250);
 %         end 
 %     end
 % end
+
+
+
