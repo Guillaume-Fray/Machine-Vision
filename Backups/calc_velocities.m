@@ -1,5 +1,5 @@
 function [vx, vy] = calc_velocities(xg, yg, tg)
-% return velocities:  all input matrix sizes must be the same.
+% Returns velocities
 % Must do by loops to catch singular velocity and clamp
 [rows,cols] = size(xg);
 % first do x velocity. Clamp at 3

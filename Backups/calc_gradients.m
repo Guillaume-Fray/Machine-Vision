@@ -1,7 +1,6 @@
 function [xGrad, yGrad, tGrad] = calc_gradients(image1, image2)
 % return gradients
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Converts the image to a matrix of doubles
     matrix1 = im2double(image1);
     matrix2 = im2double(image2);

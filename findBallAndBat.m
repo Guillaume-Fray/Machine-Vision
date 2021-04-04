@@ -1,13 +1,15 @@
-%% Function that detects automatically ball and bat and returns their positions
-function [im1, im2, positions] = findBallAndBat(index,object)
-
+%% File to detect automatically ball and bat positions
     % Matrix containing x,y coordinates of the ball in every image
-    ball_positions = zeros(20,2);  
+    ball_positions = zeros(21,2);  
     % Matrix containing x,y coordinates of the bat in every image
-    bat_positions = zeros(20,2);
-    positions = zeros(2,2);
+    bat_positions = zeros(21,2);
+    
+%     image0 = imread('TennisSet1/stennis.1.ppm');
+%     figure('Position', [850 400 900 600]);
+%     imshow(image0, 'InitialMagnification',250);
+%     impixelinfo();
 
-    for imageID = 1:20
+    for imageID = 1:length(ball_positions)
         im = imread(['TennisSet1/stennis.' int2str(imageID),'.ppm']);
         % Converts the coloured RGB image to a grayscale image using proportional
         % scaling with values: 0.2126R + 0.7151G + 0.0721B 
@@ -33,11 +35,11 @@ function [im1, im2, positions] = findBallAndBat(index,object)
         sizeIm = bwareafilt(closingIm,[100, 400]); %150 - 400
         % Keeps the smallest object when there is noise
         uniqueIm = bwareafilt(sizeIm,1,'smallest');
-        
+
     %     % To show resulting image after last modification
-    %     figure('Position', [850 400 900 600]);
-    %     imshow(uniqueIm, 'InitialMagnification',250);
-    %     impixelinfo();
+%         figure('Position', [850 400 900 600]);
+%         imshow(uniqueIm, 'InitialMagnification',250);
+%         impixelinfo();
 
         %% To identify and locate the ball
         % Using labels to find the upmost pixel of the resulting image as it  
@@ -56,9 +58,9 @@ function [im1, im2, positions] = findBallAndBat(index,object)
                 end
             end
         end
-
-    %   fprintf('\n\nx_ball %d: %d \n', imageID, ball_positions(imageID,1));
-    %   fprintf('y_ball %d: %d \n', imageID, ball_positions(imageID,2));
+        
+%       fprintf('\n\nX%d ball: %d \n', imageID, ball_positions(imageID,1));
+%       fprintf('Y%d ball: %d \n', imageID, ball_positions(imageID,2));
 
 
 
@@ -106,36 +108,173 @@ function [im1, im2, positions] = findBallAndBat(index,object)
             end
         end
 
-    %     fprintf('\n\nx_bat %d: %d \n', imageID, bat_positions(imageID,1));
-    %     fprintf('y_bat %d: %d \n', imageID, bat_positions(imageID,2));
+%       fprintf('\n\nX%d bat: %d \n', imageID, bat_positions(imageID,1));
+%       fprintf('Y%d bat: %d \n', imageID, bat_positions(imageID,2));
 
-        if (object == 1)
-            if (object == 1 && imageID == index)
-                im1 = uniqueIm;
-                positions(1,1) = ball_positions(imageID,1);
-                positions(1,2) = ball_positions(imageID,2);
-            end
-            if (object == 1 && imageID == index+1)
-                im2 = uniqueIm;
-                positions(2,1) = ball_positions(imageID,1);
-                positions(2,2) = ball_positions(imageID,2);
-            end
-        end
-        if (object == 2)
-            if (object == 1 && imageID == index)
-                im1 = closingIm2;
-                positions(1,1) = bat_positions(imageID,1);
-                positions(1,2) = bat_positions(imageID,2);                
-            end
-            if (object == 1 && imageID == index+1)
-                im2 = closingIm2;
-                positions(2,1) = bat_positions(imageID,1);
-                positions(2,2) = bat_positions(imageID,2);                    
-            end
-        end
+    end
+    
+    
+    %% Calculate 2D-velocities and speeds (in pixels per frame)
+
+   ballSpeeds = zeros(21,1);
+   batSpeeds = zeros(21,1);
+   
+   xBallVelocity = zeros(21,1);
+   yBallVelocity = zeros(21,1);
+   xBatVelocity = zeros(21,1);
+   yBatVelocity = zeros(21,1);
+   
+   for i = 1:length(ball_positions)-1
+       ballSpeeds(i+1) = (sqrt((ball_positions(i+1,1) - ball_positions(i,1))^2 ... 
+                    + (ball_positions(i+1,2) - ball_positions(i,2))^2)) * ...
+                    0.24 * 25;
+       batSpeeds(i+1) = (sqrt((bat_positions(i+1,1) - bat_positions(i,1))^2 ... 
+                    + (bat_positions(i+1,2) - bat_positions(i,2))^2)) * ...
+                    0.24 * 25;
+                
+       xBallVelocity(i+1) = ball_positions(i+1,1) - ball_positions(i,1);
+       yBallVelocity(i+1) = (ball_positions(i+1,2) - ball_positions(i,2));
+
+       xBatVelocity(i+1) = bat_positions(i+1,1) - bat_positions(i,1);
+       yBatVelocity(i+1) = bat_positions(i+1,2) - bat_positions(i,2);
+
+   end
+
+   for i = 1:length(ball_positions)
+       fprintf('\n\nIn position %d ball speed is: %.2f \n', i, ballSpeeds(i));
+       fprintf('In position %d bat speed is: %.2f \n', i,batSpeeds(i));
+
+%        fprintf('\n\nIn position %d for the ball,  X velocity is: %d \n', i,xBallVelocity(i));
+%        fprintf('In position %d for the ball,  Y velocity is: %d \n', i,yBallVelocity(i));
+%        fprintf('In position %d for the bat,  X velocity is: %d \n', i,xBatVelocity(i));
+%        fprintf('In position %d for the bat,  Y velocity is: %d \n', i,yBatVelocity(i));
+
+   end
+   
+   
+   
+   
+    %% Plot 2D-velocities (in pixels per frame)
+%         frames = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21];
+%         hold on;
+        % Ball
+%         s1 = scatter(frames,xBallVelocity,'filled');
+%         s1.MarkerEdgeColor = 'm';
+        % s1.MarkerEdgeColor = 'g';
+%         s1 = scatter(frames,-yBallVelocity,'filled');
+%           s1 = scatter(frames,abs(yBallVelocity),'filled');
+%           s1 = scatter(frames,abs(yBatVelocity),'filled');
+%           s1.MarkerEdgeColor = 'b';
+%           s1.MarkerEdgeColor = 'm';
         
-    
-    
-    end   
-    
-end
+        % Bat
+%         s1 = scatter(frames,xBatVelocity,'filled');
+%         s1.MarkerEdgeColor = 'g';
+%         s1 = scatter(frames,-yBatVelocity,'filled');
+%         s1.MarkerEdgeColor = 'r';
+
+
+        % Pick your axes HERE             <------ 2
+%         title('Bat Velocity');
+%         title('Ball Velocity');
+%         title('Ball Absolute Vy');
+%         title('Bat Absolute Vy');
+%         xlabel('Frame ID (time)') ;   
+%         ylabel('Vx (nb of pixels/frame)') ;
+%         ylabel('Vy (nb of pixels/frame)') ;
+
+        % Choose your Xmin & Xmax HERE    <------ 3
+%         xMin = 0;
+%         xMax = 25;
+%         xlim([xMin xMax]);
+%         yMin = -15;
+%         yMax = 15;         
+%         yMin = -5;
+%         yMax = 5;
+%         yMin = 0;
+%         yMax = 35; 
+%         yMin = 0;
+%         yMax = 15; 
+%         ylim([yMin yMax]);
+% 
+% 
+%         for i = 1:length(frames)-1
+%             x1 = frames(i);
+%             y1 = -yBallVelocity(i);
+%             x2 = frames(i+1);
+%             y2 = -yBallVelocity(i+1);
+%             x1 = frames(i);
+%             y1 = (xBallVelocity(i));
+%             x2 = frames(i+1);
+%             y2 = (xBallVelocity(i+1));
+%             x1 = frames(i);
+%             y1 = abs(yBallVelocity(i));
+%             x2 = frames(i+1);
+%             y2 = abs(yBallVelocity(i+1));
+
+%             x1 = frames(i);
+%             y1 = (xBatVelocity(i));
+%             x2 = frames(i+1);
+%             y2 = (xBatVelocity(i+1));
+%             x1 = frames(i);
+%             y1 = -yBatVelocity(i);
+%             x2 = frames(i+1);
+%             y2 = -yBatVelocity(i+1);
+%             x1 = frames(i);
+%             y1 = abs(yBatVelocity(i));
+%             x2 = frames(i+1);
+%             y2 = abs(yBatVelocity(i+1));
+%             plot([x1,x2], [y1, y2], 'b-', 'LineWidth', 2);
+%             plot([x1,x2], [y1, y2], 'm-', 'LineWidth', 2);
+%             plot([x1,x2], [y1, y2], 'g-', 'LineWidth', 2);
+%             plot([x1,x2], [y1, y2], 'r-', 'LineWidth', 2);
+%             set(gca,'FontSize',20)
+%         end
+
+ 
+ %% Plot 3D-Speeds (in cm per second)
+%         frames = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21];
+%         hold on;
+% %         s1 = scatter(frames,ballSpeeds,'filled');
+% %         s1.MarkerEdgeColor = 'r';
+%         s1 = scatter(frames,batSpeeds,'filled');
+%         s1.MarkerEdgeColor = 'g';
+%         
+% 
+% 
+%         % Pick your axes HERE             <------ 2
+%         title('Bat Speed');
+% %         title('Ball Speed');
+%         xlabel('Frame ID (time)') ;        
+%         ylabel('Speed (cm/second)') ;
+% 
+%         % Choose your Xmin & Xmax HERE    <------ 3
+%         % Ball
+% %         xMin = 0;
+% %         xMax = 25;
+% %         xlim([xMin xMax]);
+% %         yMin = 0;
+% %         yMax = 200;         
+% %         ylim([yMin yMax]);
+% 
+%         % Bat
+%         xMin = 0;
+%         xMax = 25;
+%         xlim([xMin xMax]);
+%         yMin = 0;
+%         yMax = 70;         
+%         ylim([yMin yMax]);
+% 
+%         for i = 1:length(frames)-1
+%             x1 = frames(i);
+% %             y1 = (ballSpeeds(i));
+%             y1 = (batSpeeds(i));
+%             x2 = frames(i+1);
+% %             y2 = (ballSpeeds(i+1));
+%             y2 = (batSpeeds(i+1));
+%             plot([x1,x2], [y1, y2], 'g-', 'LineWidth', 2);
+% %             plot([x1,x2], [y1, y2], 'r-', 'LineWidth', 2);
+%             set(gca,'FontSize',20)
+%         end
+        
+        

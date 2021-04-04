@@ -1,13 +1,13 @@
-%% Main file used to detect ball and bat and return their positions
-function [im1, im2, positions] = findBallAndBat(index,object)
+%% Function that detects automatically ball and bat and returns their positions
+function [im1, im2, positions] = getPositions(index,object)
 
     % Matrix containing x,y coordinates of the ball in every image
-    ball_positions = zeros(20,2);  
+    ball_positions = zeros(21,2);  
     % Matrix containing x,y coordinates of the bat in every image
-    bat_positions = zeros(20,2);
+    bat_positions = zeros(21,2);
     positions = zeros(2,2);
 
-    for imageID = 1:20
+    for imageID = 1:21
         im = imread(['TennisSet1/stennis.' int2str(imageID),'.ppm']);
         % Converts the coloured RGB image to a grayscale image using proportional
         % scaling with values: 0.2126R + 0.7151G + 0.0721B 
@@ -33,7 +33,7 @@ function [im1, im2, positions] = findBallAndBat(index,object)
         sizeIm = bwareafilt(closingIm,[100, 400]); %150 - 400
         % Keeps the smallest object when there is noise
         uniqueIm = bwareafilt(sizeIm,1,'smallest');
-        
+
     %     % To show resulting image after last modification
     %     figure('Position', [850 400 900 600]);
     %     imshow(uniqueIm, 'InitialMagnification',250);
@@ -109,27 +109,33 @@ function [im1, im2, positions] = findBallAndBat(index,object)
     %     fprintf('\n\nx_bat %d: %d \n', imageID, bat_positions(imageID,1));
     %     fprintf('y_bat %d: %d \n', imageID, bat_positions(imageID,2));
 
+    %% Returns positions of the ball or the bat for 2 successive images
+     % (object and images selection, based on arguments)  
         if (object == 1)
             if (object == 1 && imageID == index)
                 im1 = uniqueIm;
                 positions(1,1) = ball_positions(imageID,1);
-                positions(1,1) = ball_positions(imageID,2);
+                positions(1,2) = ball_positions(imageID,2);
             end
             if (object == 1 && imageID == index+1)
                 im2 = uniqueIm;
+                positions(2,1) = ball_positions(imageID,1);
+                positions(2,2) = ball_positions(imageID,2);
             end
         end
         if (object == 2)
             if (object == 1 && imageID == index)
                 im1 = closingIm2;
+                positions(1,1) = bat_positions(imageID,1);
+                positions(1,2) = bat_positions(imageID,2);                
             end
             if (object == 1 && imageID == index+1)
                 im2 = closingIm2;
+                positions(2,1) = bat_positions(imageID,1);
+                positions(2,2) = bat_positions(imageID,2);                    
             end
         end
         
-    
-    
     end   
     
 end

@@ -4,8 +4,8 @@
     ball = 1;
     bat = 2;
     
-    imageID = 11;
-    [im1, im2, positions] = findBallAndBat(imageID,ball);
+    imageID = 2;
+    [im1, im2, positions] = getPositions(imageID,ball);
     im1 = im2double(im1);
     im1 = im1+1;
     im2 = im2double(im2);
@@ -21,11 +21,11 @@
 %         figure;
 % %         imshow(yGrad, 'InitialMagnification',250);
 %         mesh(vy);
-        figure;
-        imshow(vx,[], 'InitialMagnification',350);
-        impixelinfo();
-        title('Vx');
-        set(gca,'FontSize',20)
+%         figure;
+%         imshow(vx,[], 'InitialMagnification',350);
+%         impixelinfo();
+%         title('Vx');
+%         set(gca,'FontSize',20)
         
 %         imshow(tGrad, 'InitialMagnification',250);
         figure;
@@ -37,7 +37,8 @@
         vx = transpose(vx);
         vy = transpose(vy);
         [rows, cols] = size(vx);
-        
+       
+       % Displays the velocities of the pixels in motion only
        for i = 1:rows
            for j = 1:cols
                if (vx(i,j) ~= 0 && vy(i,j) ~= 0)
