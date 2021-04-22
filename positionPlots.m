@@ -143,6 +143,7 @@ close all;
 x = zeros(1,67);%21
 Vx = zeros(1,67);%21
 Vy = zeros(1,67);%21
+imageSpeed = zeros(1,67);%21
 speed = zeros(1,67);
 
 for m = 1:67 %68   
@@ -151,7 +152,7 @@ end
 
 
 for n = 1:67
-    if n<50
+    if n<50 
         Vx(n) = (X1(n+1)-X1(n))*(68.47/((-1009*(n+1) / 980) + 69.5));
         Vy(n) = (Y1(n+1)-Y1(n))*(68.47/((-1009*(n+1) / 980) + 69.5));
         speed(n) = sqrt(double((Vx(n))^2+(Vy(n))^2)) * 0.248 * 25;
@@ -160,6 +161,7 @@ for n = 1:67
         Vy(n) = (Y1(n+1)-Y1(n))*(68.47/((-1009*(50) / 980) + 69.5));
         speed(n) = sqrt(double((Vx(n))^2+(Vy(n))^2)) * 0.248 * 25;
     end
+    imageSpeed(n) = sqrt(double((X1(n+1)-X1(n))^2 + (Y1(n+1)-Y1(n))^2));
 end
 
 hold on;
@@ -171,22 +173,22 @@ hold on;
 % s2.MarkerEdgeColor = 'm';
 % s3 = scatter(x,Vx,'filled','r');
 % s3.MarkerEdgeColor = 'r';
-% s4 = scatter(x,Vy,'filled','b');
-% s4.MarkerEdgeColor = 'b';
-s5 = scatter(x,speed,'filled','r');
-s5.MarkerEdgeColor = 'r';
+s4 = scatter(x,speed,'filled','r');
+s4.MarkerEdgeColor = 'r';
+% % % % s5 = scatter(x,Vx,'filled','r');
+% % % % s5.MarkerEdgeColor = 'r';
 view(-30,10);
 
 
 % Pick your axes HERE             <------ 2
 % title('Bat Trajectory');
 % title('Ball Trajectory');
-% title('Bat Velocity Vx');
-title('Bat Speed');
+% title('Bat Velocity Vy');
+title('Ball 3D Speed');
 % title('Ball Velocity Vx');
 % title('Ball Velocity Vy');
 xlabel('Frame ID (time)') ;
-ylabel('Bat Speed  -  (pixels/frame)') ;
+ylabel('Speed  -  (cm/sec)') ;
 % ylabel('X coordinates   -   (nb of pixels)') ;
 % zlabel('Y coordinates   -   (nb of pixels)') ;
 
@@ -206,7 +208,7 @@ xMin = 1;
 xMax = 67;
 xlim([xMin xMax]);
 yMin = 0;
-yMax = 1000;
+yMax = 700;
 % yMax = 2400;
 ylim([yMin yMax]);
 
@@ -257,7 +259,7 @@ for i = 1:(length(Vx)-1)
 %     y2 = (Vx(i+1));
 %     y2 = (Vy(i+1));
     y2 = speed(i+1);
-%     plot([x1,x2], [y1, y2], 'b-', 'LineWidth', 2);
     plot([x1,x2], [y1, y2], 'r-', 'LineWidth', 2);
+%     plot([x1,x2], [y1, y2], 'r-', 'LineWidth', 2);
     set(gca,'FontSize',20)
 end

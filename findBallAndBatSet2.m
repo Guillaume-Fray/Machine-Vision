@@ -284,14 +284,14 @@ for imageID = 1:length(xyCentreBallOff)
         end
 
         
-%         if (imageID == 27  ||  imageID == 35)
-% %             figure('Position', [850 400 900 600]);
-% %             imshow(periIm, 'InitialMagnification',250);
-% %             impixelinfo();
-%             figure('Position', [650 400 900 600]);
-%             imshow(periIm, 'InitialMagnification',200);
-% %             impixelinfo();
-%         end
+        if (imageID == 43  ||  imageID == 44)
+%             figure('Position', [850 400 900 600]);
+%             imshow(imBat, 'InitialMagnification',250);
+%             impixelinfo();
+            figure('Position', [650 400 900 600]);
+            imshow(periIm, 'InitialMagnification',200);
+%             impixelinfo();
+        end
 
 %               fprintf(' %d\n', xyCentreBat(imageID,2));
 %               fprintf(' %d,', xyCentreBat(imageID,2));
